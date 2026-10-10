@@ -22,8 +22,8 @@ services:
     environment:
       MYSQL_DATABASE: laravel
       MYSQL_USER: phper
-      MYSQL_PASSWORD: secretpassword
-      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_PASSWORD: pass
+      MYSQL_ROOT_PASSWORD: pass
     ports:
       - "3306:3306"
     volumes:
