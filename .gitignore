@@ -2,13 +2,13 @@
 # MySQLなどのデータ永続化ボリューム用ディレクトリ
 infra/mysql/data/
 
-# --- Laravel (backend) ---
-/backend/node_modules
-/backend/public/hot
-/backend/public/storage
-/backend/public/build
-/backend/storage/*.key
-/backend/vendor
+# --- Laravel (web) ---
+/web/node_modules
+/web/public/hot
+/web/public/storage
+/web/public/build
+/web/storage/*.key
+/web/vendor
 .env
 .env.backup
 .phpunit.result.cache

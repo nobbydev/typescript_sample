@@ -5,7 +5,7 @@ services:
       - "8000:80"
     volumes:
       - ./frontend:/var/www/frontend
-      - ./backend:/var/www/backend
+      - ./web:/var/www/web
       - ./infra/nginx/default.conf:/etc/nginx/conf.d/default.conf
     depends_on:
       - php
@@ -15,7 +15,7 @@ services:
     build:
       context: ./infra/php
     volumes:
-      - ./backend:/var/www/backend
+      - ./web:/var/www/web
 
   db:
     image: mysql:8.0
