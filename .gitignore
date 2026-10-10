@@ -1,0 +1,33 @@
+# --- Docker ---
+# MySQLなどのデータ永続化ボリューム用ディレクトリ
+infra/mysql/data/
+
+# --- Laravel (backend) ---
+/backend/node_modules
+/backend/public/hot
+/backend/public/storage
+/backend/public/build
+/backend/storage/*.key
+/backend/vendor
+.env
+.env.backup
+.phpunit.result.cache
+Homestead.json
+Homestead.yaml
+npm-debug.log
+yarn-error.log
+.DS_Store
+Thumbs.db
+
+# --- React / Vite (frontend) ---
+/frontend/node_modules
+/frontend/dist
+/frontend/dist-ssr
+*.local
+
+# --- OS / IDE ---
+.DS_Store
+.vscode/
+.idea/
+*.swp
+*.swo
