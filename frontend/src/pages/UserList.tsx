@@ -41,69 +41,74 @@ export default function UserList() {
   }, []);
 
   if (loading) {
-    return <div className="container mt-4">読み込み中...</div>;
+    return (
+      <div className="min-h-screen bg-white p-8 text-emerald-800 font-sans">
+        読み込み中...
+      </div>
+    );
   }
 
-  // 会員追加ボタンが押されたときの処理（例: リンクやモーダルを開くなど）
+  // 会員追加ボタンが押されたときの処理
   const handleAddUser = () => {
-    // 例: 新規追加ページへ飛ばす場合
     window.location.href = '/users/create';
   };
 
   return (
-    <div style={{ padding: '20px', fontFamily: 'sans-serif', backgroundColor: '#ffffff', color: '#000000', minHeight: '100vh' }}>
-      <h2 className="mb-3">会員一覧ページ</h2>
+    <div className="min-h-screen bg-white text-gray-800 font-sans p-6 md:p-10">
+      <div className="max-w-5xl mx-auto">
+        <h2 className="text-2xl font-bold text-emerald-900 border-b-2 border-emerald-200 pb-3 mb-6">
+          会員一覧ページ
+        </h2>
 
-      {/* フラッシュメッセージがあれば緑色のボックスで表示する */}
-      {message && (
-        <div style={{ backgroundColor: '#d4edda', color: '#155724', padding: '10px', marginBottom: '15px', borderRadius: '4px' }}>
-          {message}
+        {/* フラッシュメッセージ（パステルグリーン風の警告・成功通知） */}
+        {message && (
+          <div className="bg-emerald-50 border border-emerald-200 text-emerald-800 px-4 py-3 rounded-lg mb-6 shadow-sm">
+            {message}
+          </div>
+        )}
+
+        {/* 上部の会員追加ボタン */}
+        <div className="mb-6">
+          <button
+            className="bg-emerald-500 hover:bg-emerald-600 text-white font-medium px-5 py-2.5 rounded-lg shadow-sm transition-colors duration-150"
+            onClick={handleAddUser}
+          >
+            ＋ 会員を追加する
+          </button>
         </div>
-      )}
 
-      {/* 上部の会員追加ボタン */}
-      <div className="mt-3 mb-5">
-        <button className="btn btn-primary" onClick={handleAddUser}>
-          会員を追加する
-        </button>
-      </div>
-      <br/>
-      {/* テーブルに border="1" や borderCollapse、枠線のスタイルを明示的に指定する */}
-      <table 
-        border={1} 
-        cellPadding={8} 
-        style={{ 
-          borderCollapse: 'collapse', 
-          width: '100%', 
-          backgroundColor: '#ffffff',
-          borderColor: '#dddddd' // 枠線の色
-        }}
-      >
-        <thead>
-          <tr style={{ backgroundColor: '#f0f0f0' }}>
-            <th style={{ border: '1px solid #dddddd', padding: '8px' }}>ID</th>
-            <th style={{ border: '1px solid #dddddd', padding: '8px' }}>名前</th>
-            <th style={{ border: '1px solid #dddddd', padding: '8px' }}>メールアドレス</th>
-          </tr>
-        </thead>
-        <tbody>
-          {users.map((user) => (
-            <tr key={user.id}>
-              <td style={{ border: '1px solid #dddddd', padding: '8px' }}>{user.id}</td>
-              <td style={{ border: '1px solid #dddddd', padding: '8px' }}>{user.name}</td>
-              <td style={{ border: '1px solid #dddddd', padding: '8px' }}>{user.email}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-      <br/>
-      {/* 下部の会員追加ボタン */}
-      <div className="mt-3 mb-5">
-        <button className="btn btn-primary" onClick={handleAddUser}>
-          会員を追加する
-        </button>
-      </div>
+        {/* テーブル（パステルグリーンのヘッダーと柔らかい枠線） */}
+        <div className="overflow-x-auto rounded-lg border border-emerald-100 shadow-sm mb-6">
+          <table className="w-full text-left border-collapse bg-white">
+            <thead>
+              <tr className="bg-emerald-50 text-emerald-900 border-b border-emerald-100">
+                <th className="p-3.5 border-r border-emerald-100 font-semibold w-20 text-center">ID</th>
+                <th className="p-3.5 border-r border-emerald-100 font-semibold">名前</th>
+                <th className="p-3.5 font-semibold">メールアドレス</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-emerald-100">
+              {users.map((user) => (
+                <tr key={user.id} className="hover:bg-emerald-50/40 transition-colors">
+                  <td className="p-3.5 border-r border-emerald-100 text-center text-gray-600">{user.id}</td>
+                  <td className="p-3.5 border-r border-emerald-100 font-medium text-gray-800">{user.name}</td>
+                  <td className="p-3.5 text-gray-600">{user.email}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
 
+        {/* 下部の会員追加ボタン */}
+        <div>
+          <button
+            className="bg-emerald-500 hover:bg-emerald-600 text-white font-medium px-5 py-2.5 rounded-lg shadow-sm transition-colors duration-150"
+            onClick={handleAddUser}
+          >
+            ＋ 会員を追加する
+          </button>
+        </div>
+      </div>
     </div>
   );
 }

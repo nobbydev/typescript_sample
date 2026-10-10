@@ -1,10 +1,11 @@
 import react from '@vitejs/plugin-react'
+import tailwindcss from '@tailwindcss/vite'
 import { defineConfig } from 'vite'
 import path from 'path'
 
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [react()],
+  plugins: [react(), tailwindcss()],
   
   // ここに開発用のサーバー（プロキシ）設定を追加します！
   server: {
@@ -17,9 +18,7 @@ export default defineConfig({
   },
 
   build: {
-    // 出力先を Laravel の public フォルダ「直下」に変更
     outDir: path.resolve(__dirname, '../web/public'),
-    // ビルド時に古いファイルを一度クリアする（ただし index.php などが消えないよう注意。必要に応じて調整）
-    emptyOutDir: false, 
+    emptyOutDir: false,
   },
 })
