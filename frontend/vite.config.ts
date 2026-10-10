@@ -9,6 +9,7 @@ export default defineConfig({
   
   // ここに開発用のサーバー（プロキシ）設定を追加します！
   server: {
+    port: 5173, // Vite開発用サーバーポート指定
     proxy: {
       '/api': {
         target: 'http://localhost:8000', // Laravelのバックエンド（ポート8000）に転送する
