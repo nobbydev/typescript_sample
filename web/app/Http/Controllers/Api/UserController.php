@@ -16,4 +16,22 @@ class UserController extends Controller
         // JSON形式でフロントエンドへ返す
         return response()->json($users);
     }
+
+    public function store(Request $request)
+    {
+        // バリデーション（emailの重複などを防ぐ）
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email',
+        ]);
+
+        // データベースに挿入
+        DB::table('users')->insert([
+            'name' => $validated['name'],
+            'email' => $validated['email'],
+            'created_at' => now(),
+        ]);
+
+        return response()->json(['message' => '登録に成功しました'], 201);
+    }
 }

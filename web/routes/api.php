@@ -20,5 +20,5 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 
-// /api/user/list でアクセスできるようにする
-Route::get('/user/list', [UserController::class, 'index']);
+Route::get('/user/list', [UserController::class, 'index']); // 会員一覧
+Route::post('/users', [UserController::class, 'store']);    // ユーザー登録

@@ -50,7 +50,7 @@ export default function UserList() {
           会員を追加する
         </button>
       </div>
-
+      <br/>
       {/* テーブルに border="1" や borderCollapse、枠線のスタイルを明示的に指定する */}
       <table 
         border={1} 
@@ -79,7 +79,7 @@ export default function UserList() {
           ))}
         </tbody>
       </table>
-
+      <br/>
       {/* 下部の会員追加ボタン */}
       <div className="mt-3 mb-5">
         <button className="btn btn-primary" onClick={handleAddUser}>
