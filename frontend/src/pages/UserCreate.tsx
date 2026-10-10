@@ -51,6 +51,9 @@ export default function UserCreate() {
         body: JSON.stringify({ name, email }),
       });
 
+      // 一覧画面に渡すフラッシュメッセージを保存する
+      localStorage.setItem('flashMessage', '会員の登録が完了しました！');        
+
       const data = await response.json();
 
       if (!response.ok) {
@@ -73,7 +76,7 @@ export default function UserCreate() {
   };
 
   return (
-    <div style={{ padding: '20px', fontFamily: 'sans-serif', maxWidth: '400px', margin: '0 auto' }}>
+    <div style={{ padding: '20px', fontFamily: 'sans-serif', backgroundColor: '#ffffff', color: '#000000', minHeight: '100vh' }}>        
       <h2>会員新規追加</h2>
 
       {error && <p style={{ color: 'red', backgroundColor: '#ffe6e6', padding: '10px', borderRadius: '4px' }}>{error}</p>}
@@ -85,7 +88,7 @@ export default function UserCreate() {
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            style={{ width: '100%', padding: '8px', boxSizing: 'border-box' }}
+            style={{ width: '250px', padding: '8px', boxSizing: 'border-box' }}
           />
           {fieldErrors.name && (
             <span style={{ color: 'red', fontSize: '0.85rem', display: 'block', marginTop: '3px' }}>
@@ -100,7 +103,7 @@ export default function UserCreate() {
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            style={{ width: '100%', padding: '8px', boxSizing: 'border-box' }}
+            style={{ width: '250px', padding: '8px', boxSizing: 'border-box' }}
           />
           {fieldErrors.email && (
             <span style={{ color: 'red', fontSize: '0.85rem', display: 'block', marginTop: '3px' }}>
@@ -109,12 +112,14 @@ export default function UserCreate() {
           )}
         </div>
 
-        <button 
-          type="submit" 
-          style={{ padding: '10px', backgroundColor: '#007bff', color: 'white', border: 'none', cursor: 'pointer', borderRadius: '4px' }}
-        >
-          登録する
-        </button>
+        <div>
+            <button 
+            type="submit" 
+            style={{ padding: '10px', backgroundColor: '#007bff', color: 'white', border: 'none', cursor: 'pointer', borderRadius: '4px', width: '150px' }}
+            >
+            登録する
+            </button>
+        </div>
       </form>
 
       <div style={{ marginTop: '20px' }}>

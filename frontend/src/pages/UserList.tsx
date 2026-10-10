@@ -11,8 +11,18 @@ export default function UserList() {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
 
+  // フラッシュメッセージ用のState
+  const [message, setMessage] = useState<string | null>(null);
+
   // 会員一覧をLaravelのAPIから取得する処理
   useEffect(() => {
+    // フラッシュメッセージを取得する
+    const flashMessage = localStorage.getItem('flashMessage');
+    if (flashMessage) {
+      setMessage(flashMessage);
+      localStorage.removeItem('flashMessage'); // 一度表示したら削除
+    }
+
     fetch('/api/user/list')
       .then((res) => {
         if (!res.ok) {
@@ -43,6 +53,13 @@ export default function UserList() {
   return (
     <div style={{ padding: '20px', fontFamily: 'sans-serif', backgroundColor: '#ffffff', color: '#000000', minHeight: '100vh' }}>
       <h2 className="mb-3">会員一覧ページ</h2>
+
+      {/* フラッシュメッセージがあれば緑色のボックスで表示する */}
+      {message && (
+        <div style={{ backgroundColor: '#d4edda', color: '#155724', padding: '10px', marginBottom: '15px', borderRadius: '4px' }}>
+          {message}
+        </div>
+      )}
 
       {/* 上部の会員追加ボタン */}
       <div className="mt-3 mb-5">
