@@ -7,6 +7,8 @@ infra/mysql/data/
 /web/public/hot
 /web/public/storage
 /web/public/build
+/web/public/assets
+/web/public/index.html
 /web/storage/*.key
 /web/vendor
 .env
