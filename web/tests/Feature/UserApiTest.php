@@ -60,4 +60,25 @@ class UserApiTest extends TestCase
             'email' => 'after@example.com',
         ]);
     }
+
+    /**
+     * ユーザー削除APIが対象ユーザーを削除し、存在しないIDには404を返すことを確認する。
+     */
+    public function test_user_can_be_deleted(): void
+    {
+        $id = DB::table('users')->insertGetId([
+            'name' => '削除対象',
+            'email' => 'delete@example.com',
+        ]);
+
+        $this->deleteJson("/api/users/{$id}")
+            ->assertOk()
+            ->assertJson(['message' => '削除に成功しました']);
+
+        $this->assertDatabaseMissing('users', ['id' => $id]);
+
+        $this->deleteJson("/api/users/{$id}")
+            ->assertNotFound()
+            ->assertJson(['message' => 'ユーザーが見つかりません。']);
+    }
 }

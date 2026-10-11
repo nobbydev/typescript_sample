@@ -30,6 +30,7 @@ export default function UserEdit() {
   const [name, setName] = useState<string>('');
   const [email, setEmail] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(isEditing);
+  const [deleting, setDeleting] = useState<boolean>(false);
   const [loadError, setLoadError] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<ValidationErrors>({});
@@ -149,6 +150,36 @@ export default function UserEdit() {
     }
   };
 
+  const handleDelete = async () => {
+    if (!id || !window.confirm('この会員情報を削除します。よろしいですか？')) {
+      return;
+    }
+
+    setDeleting(true);
+    setError(null);
+
+    try {
+      const response = await fetch(`/api/users/${id}`, {
+        method: 'DELETE',
+        headers: { Accept: 'application/json' },
+      });
+      const data: ApiErrorResponse = await response.json();
+
+      if (!response.ok) {
+        setError(data.message || '会員情報を削除できませんでした。');
+        return;
+      }
+
+      localStorage.setItem('flashMessage', '会員情報を削除しました！');
+      navigate('/');
+    } catch (err) {
+      console.error('会員情報削除エラー:', err);
+      setError('通信に失敗しました。時間をおいて再度お試しください。');
+    } finally {
+      setDeleting(false);
+    }
+  };
+
   if (loading) {
     // ローディング中の表示、setLoading()にて制御
     return (
@@ -227,14 +258,28 @@ export default function UserEdit() {
             )}
           </div>
 
-          <div className="pt-2">
-            <button 
-              type="submit" 
-              className="w-full sm:w-auto bg-emerald-500 hover:bg-emerald-600 text-white font-medium px-6 py-2.5 rounded-lg shadow-sm transition-colors duration-150"
+          <div className="pt-2 flex items-center justify-center gap-3">
+            {/* 更新・登録ボタン */}
+            <button
+              type="submit"
+              className="bg-emerald-500 hover:bg-emerald-600 text-white font-medium px-6 py-2.5 rounded-lg shadow-sm transition-colors duration-150"
             >
               {isEditing ? '更新する' : '登録する'}
             </button>
+
+            {/* 削除ボタン */}
+            {isEditing && (
+              <button
+                type="button"
+                onClick={() => void handleDelete()}
+                disabled={deleting}
+                className="bg-rose-600 hover:bg-rose-700 disabled:cursor-not-allowed disabled:opacity-60 text-white font-medium px-6 py-2.5 rounded-lg shadow-sm transition-colors duration-150"
+              >
+                {deleting ? '削除中...' : '削除する'}
+              </button>
+            )}
           </div>
+
         </form>
 
         <div className="mt-6">
@@ -245,6 +290,9 @@ export default function UserEdit() {
             &larr; 一覧に戻る
           </button>
         </div>
+
+
+
       </div>
     </div>
   );

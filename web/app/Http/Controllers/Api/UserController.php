@@ -73,4 +73,15 @@ class UserController extends Controller
 
         return response()->json(['message' => '更新に成功しました']);
     }
+
+    public function destroy(int $id)
+    {
+        $deleted = DB::table('users')->where('id', $id)->delete();
+
+        if (!$deleted) {
+            return response()->json(['message' => 'ユーザーが見つかりません。'], 404);
+        }
+
+        return response()->json(['message' => '削除に成功しました']);
+    }
 }
