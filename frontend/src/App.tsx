@@ -1,7 +1,7 @@
 import { BrowserRouter, Routes, Route, Outlet, useLocation } from 'react-router-dom';
 import Header from './components/Header';
 import UserList from './pages/UserList';
-import UserCreate from './pages/UserCreate';
+import UserEdit from './pages/UserEdit';
 
 function AppLayout() {
   const location = useLocation();
@@ -27,7 +27,8 @@ export default function App() {
       <Routes>
         <Route element={<AppLayout />}>
           <Route path="/" element={<UserList />} />
-          <Route path="/users/create" element={<UserCreate />} />
+          <Route path="/users/create" element={<UserEdit key="create" />} />
+          <Route path="/users/:id/edit" element={<UserEdit key="edit" />} />
 
           {/* ログインページ等を追加する場合
           <Route path="/login" element={<LoginPage />} />

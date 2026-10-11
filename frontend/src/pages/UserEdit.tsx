@@ -1,19 +1,94 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useEffect, useState, type SubmitEvent } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 
 type ValidationErrors = {
   name?: string[];
   email?: string[];
 };
 
-export default function UserCreate() {
+type User = {
+  name: string;
+  email: string;
+};
+
+type ApiErrorResponse = {
+  errors?: ValidationErrors;
+  message?: string;
+};
+
+function isUser(data: User | ApiErrorResponse): data is User {
+  return 'name' in data && 'email' in data;
+}
+
+function isApiErrorResponse(data: User | ApiErrorResponse): data is ApiErrorResponse {
+  return 'message' in data || 'errors' in data;
+}
+
+export default function UserEdit() {
+  const { id } = useParams<{ id: string }>();
+  const isEditing = id !== undefined;
   const [name, setName] = useState<string>('');
   const [email, setEmail] = useState<string>('');
-  
+  const [loading, setLoading] = useState<boolean>(isEditing);
+  const [loadError, setLoadError] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<ValidationErrors>({});
 
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!id) {
+      // 新規作成モードの場合はユーザー情報の取得は不要
+      return;
+    }
+
+    const loadUser = async () => {
+      /**
+       * ローディング時間を一定以上にするためのプロミス
+       */
+      const minimumLoadingTime = new Promise<void>((resolve) => {
+        // ｎ秒待つ
+        window.setTimeout(resolve, 1000);
+      });
+
+      try {
+        const response = await fetch(`/api/users/${id}`, {
+          headers: { Accept: 'application/json' },
+        });
+        const data: User | ApiErrorResponse = await response.json();
+
+        await minimumLoadingTime; // n秒待つ → ローディング中を表示する為のダミー待ち
+
+        if (!response.ok) {
+          setError(
+            (isApiErrorResponse(data) && data.message)
+              || 'ユーザー情報を取得できませんでした。',
+          );
+          setLoadError(true);
+          return;
+        }
+
+        if (!isUser(data)) {
+          setError('ユーザー情報を取得できませんでした。');
+          setLoadError(true);
+          return;
+        }
+
+        setName(data.name);
+        setEmail(data.email);
+        setError(null);
+        setLoadError(false);
+      } catch (err) {
+        console.error('ユーザー情報取得エラー:', err);
+        setError('ユーザー情報の取得に失敗しました。時間をおいて再度お試しください。');
+        setLoadError(true);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    void loadUser();
+  }, [id]);
 
   const validateFrontend = (): boolean => {
     if (!name.trim()) {
@@ -32,7 +107,7 @@ export default function UserCreate() {
     return true;
   };
 
-  const handleSubmit = async (e: any) => {
+  const handleSubmit = async (e: SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError(null);
     setFieldErrors({});
@@ -42,8 +117,8 @@ export default function UserCreate() {
     }
 
     try {
-      const response = await fetch('/api/users', {
-        method: 'POST',
+      const response = await fetch(isEditing ? `/api/users/${id}` : '/api/users', {
+        method: isEditing ? 'PUT' : 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
@@ -51,10 +126,7 @@ export default function UserCreate() {
         body: JSON.stringify({ name, email }),
       });
 
-      // 一覧画面に渡すフラッシュメッセージを保存する
-      localStorage.setItem('flashMessage', '会員の登録が完了しました！');        
-
-      const data = await response.json();
+      const data: ApiErrorResponse = await response.json();
 
       if (!response.ok) {
         if (response.status === 422) {
@@ -66,7 +138,10 @@ export default function UserCreate() {
         return;
       }
 
-      // 登録成功したら一覧画面へリダイレクト
+      localStorage.setItem(
+        'flashMessage',
+        isEditing ? '会員情報を更新しました！' : '会員の登録が完了しました！',
+      );
       navigate('/');
     } catch (err) {
       console.error('通信エラー:', err);
@@ -74,11 +149,38 @@ export default function UserCreate() {
     }
   };
 
+  if (loading) {
+    // ローディング中の表示、setLoading()にて制御
+    return (
+      <div className="min-h-screen bg-white p-8 text-emerald-800 font-sans">
+        読み込み中...
+      </div>
+    );
+  }
+
+  if (isEditing && loadError) {
+    return (
+      <div className="min-h-screen bg-white text-gray-800 font-sans p-6 md:p-10">
+        <div className="max-w-xl mx-auto">
+          <div className="bg-rose-50 border border-rose-200 text-rose-700 px-4 py-3 rounded-lg mb-6 shadow-sm text-sm">
+            {error}
+          </div>
+          <button
+            onClick={() => navigate('/')}
+            className="text-emerald-600 hover:text-emerald-800 font-medium hover:underline inline-flex items-center text-sm transition-colors"
+          >
+            &larr; 一覧に戻る
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-white text-gray-800 font-sans p-6 md:p-10">
       <div className="max-w-xl mx-auto">
-        <h2 className="text-2xl font-bold text-emerald-900 border-b-2 border-emerald-200 pb-3 mb-6">
-          会員新規追加
+        <h2 className="text-2xl font-bold !text-emerald-900 border-b-2 border-emerald-200 pb-3 mb-6">
+          {isEditing ? '会員情報編集' : '会員新規追加'}
         </h2>
 
         {/* 全体エラーメッセージ */}
@@ -130,7 +232,7 @@ export default function UserCreate() {
               type="submit" 
               className="w-full sm:w-auto bg-emerald-500 hover:bg-emerald-600 text-white font-medium px-6 py-2.5 rounded-lg shadow-sm transition-colors duration-150"
             >
-              登録する
+              {isEditing ? '更新する' : '登録する'}
             </button>
           </div>
         </form>

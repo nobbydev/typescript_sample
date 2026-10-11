@@ -22,3 +22,5 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 Route::get('/user/list', [UserController::class, 'index']); // 会員一覧
 Route::post('/users', [UserController::class, 'store']);    // ユーザー登録
+Route::get('/users/{id}', [UserController::class, 'show'])->whereNumber('id'); // ユーザー情報取得
+Route::put('/users/{id}', [UserController::class, 'update'])->whereNumber('id'); // ユーザー情報更新

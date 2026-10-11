@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 // データの型の定義
 type User = {
@@ -8,6 +9,7 @@ type User = {
 };
 
 export default function UserList() {
+  const navigate = useNavigate();
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
 
@@ -50,7 +52,7 @@ export default function UserList() {
 
   // 会員追加ボタンが押されたときの処理
   const handleAddUser = () => {
-    window.location.href = '/users/create';
+    navigate('/users/create');
   };
 
   return (
@@ -85,6 +87,7 @@ export default function UserList() {
                 <th className="p-3.5 border-r border-emerald-100 font-semibold w-20 text-center">ID</th>
                 <th className="p-3.5 border-r border-emerald-100 font-semibold">名前</th>
                 <th className="p-3.5 font-semibold">メールアドレス</th>
+                <th className="p-3.5 font-semibold w-28">操作</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-emerald-100">
@@ -93,6 +96,14 @@ export default function UserList() {
                   <td className="p-3.5 border-r border-emerald-100 text-center text-gray-600">{user.id}</td>
                   <td className="p-3.5 border-r border-emerald-100 font-medium text-gray-800">{user.name}</td>
                   <td className="p-3.5 text-gray-600">{user.email}</td>
+                  <td className="p-3.5">
+                    <button
+                      className="text-emerald-700 hover:text-emerald-900 font-medium hover:underline"
+                      onClick={() => navigate(`/users/${user.id}/edit`)}
+                    >
+                      編集
+                    </button>
+                  </td>
                 </tr>
               ))}
             </tbody>
