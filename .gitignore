@@ -1,6 +1,6 @@
 # --- Docker ---
 # MySQLなどのデータ永続化ボリューム用ディレクトリ
-infra/mysql/data/
+docker/mysql/data/
 
 # --- Laravel (web) ---
 /web/node_modules
