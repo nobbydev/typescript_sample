@@ -4,8 +4,8 @@ React + TypeScript のフロントエンドと Laravel API で構成された、
 Docker Compose で Nginx、PHP、MySQL を起動します。
 
 ## 公開情報
-デモサイト：
-ソースコード：
+デモサイト：http://140.245.87.9:8000/
+ソースコード：https://github.com/nobbydev/typescript_sample.git
 
 ## 主な技術
 
