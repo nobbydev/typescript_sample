@@ -1,5 +1,9 @@
 @import "tailwindcss";
 
+.page-heading {
+  @apply mb-6 border-b-2 border-emerald-200 pb-3 text-2xl font-bold text-emerald-900;
+}
+
 .counter {
   font-size: 16px;
   padding: 5px 10px;

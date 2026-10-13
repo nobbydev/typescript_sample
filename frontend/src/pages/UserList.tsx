@@ -12,6 +12,7 @@ export default function UserList() {
   const navigate = useNavigate();
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
   // フラッシュメッセージ用のState
   const [message, setMessage] = useState<string | null>(null);
@@ -28,7 +29,7 @@ export default function UserList() {
     fetch('/api/user/list')
       .then((res) => {
         if (!res.ok) {
-          throw new Error('データの取得に失敗しました');
+          throw new Error('会員一覧を取得できませんでした。時間をおいて再度お試しください。');
         }
         return res.json();
       })
@@ -38,6 +39,11 @@ export default function UserList() {
       })
       .catch((err: unknown) => {
         console.error('データ取得エラー:', err);
+        setLoadError(
+          err instanceof Error
+            ? err.message
+            : '会員一覧の取得に失敗しました。時間をおいて再度お試しください。',
+        );
         setLoading(false);
       });
   }, []);
@@ -50,6 +56,24 @@ export default function UserList() {
     );
   }
 
+  if (loadError) {
+    return (
+      <div className="min-h-screen bg-white text-gray-800 font-sans p-6 md:p-10">
+        <div className="max-w-5xl mx-auto">
+          <div className="bg-rose-50 border border-rose-200 text-rose-700 px-4 py-3 rounded-lg mb-6 shadow-sm text-sm">
+            {loadError}
+          </div>
+          <button
+            onClick={() => window.location.reload()}
+            className="text-emerald-600 hover:text-emerald-800 font-medium hover:underline inline-flex items-center text-sm transition-colors"
+          >
+            再読み込み
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   // 会員追加ボタンが押されたときの処理
   const handleAddUser = () => {
     navigate('/users/create');
@@ -58,7 +82,7 @@ export default function UserList() {
   return (
     <div className="min-h-screen bg-white text-gray-800 font-sans p-6 md:p-10">
       <div className="max-w-5xl mx-auto">
-        <h2 className="text-2xl font-bold text-emerald-900 border-b-2 border-emerald-200 pb-3 mb-6">
+        <h2 className="page-heading">
           会員一覧ページ
         </h2>
 

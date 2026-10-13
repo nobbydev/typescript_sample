@@ -210,7 +210,7 @@ export default function UserEdit() {
   return (
     <div className="min-h-screen bg-white text-gray-800 font-sans p-6 md:p-10">
       <div className="max-w-xl mx-auto">
-        <h2 className="text-2xl font-bold !text-emerald-900 border-b-2 border-emerald-200 pb-3 mb-6">
+        <h2 className="page-heading">
           {isEditing ? '会員情報編集' : '会員新規追加'}
         </h2>
 
