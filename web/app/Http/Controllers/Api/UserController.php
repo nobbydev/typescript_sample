@@ -9,6 +9,13 @@ use Illuminate\Validation\Rule;
 
 class UserController extends Controller
 {
+    public function prefectures()
+    {
+        return response()->json(
+            DB::table('prefectures')->select('id', 'name')->orderBy('id')->get()
+        );
+    }
+
     public function index()
     {
         // users テーブルからすべてのデータを取得
@@ -24,12 +31,14 @@ class UserController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
+            'from_pref' => 'nullable|integer|exists:prefectures,id',
         ]);
 
         // データベースに挿入
         DB::table('users')->insert([
             'name' => $validated['name'],
             'email' => $validated['email'],
+            'from_pref' => $validated['from_pref'] ?? null,
             'created_at' => now(),
         ]);
 
@@ -39,7 +48,7 @@ class UserController extends Controller
     public function show(int $id)
     {
         $user = DB::table('users')
-            ->select('id', 'name', 'email')
+            ->select('id', 'name', 'email', 'from_pref')
             ->where('id', $id)
             ->first();
 
@@ -64,12 +73,18 @@ class UserController extends Controller
                 'email',
                 Rule::unique('users', 'email')->ignore($id),
             ],
+            'from_pref' => 'nullable|integer|exists:prefectures,id',
         ]);
 
-        DB::table('users')->where('id', $id)->update([
+        $updates = [
             'name' => $validated['name'],
             'email' => $validated['email'],
-        ]);
+        ];
+        if (array_key_exists('from_pref', $validated)) {
+            $updates['from_pref'] = $validated['from_pref'];
+        }
+
+        DB::table('users')->where('id', $id)->update($updates);
 
         return response()->json(['message' => '更新に成功しました']);
     }

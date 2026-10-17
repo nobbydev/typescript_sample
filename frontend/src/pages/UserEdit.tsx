@@ -4,11 +4,18 @@ import { useNavigate, useParams } from 'react-router-dom';
 type ValidationErrors = {
   name?: string[];
   email?: string[];
+  from_pref?: string[];
 };
 
 type User = {
   name: string;
   email: string;
+  from_pref: number | null;
+};
+
+type Prefecture = {
+  id: number;
+  name: string;
 };
 
 type ApiErrorResponse = {
@@ -17,7 +24,7 @@ type ApiErrorResponse = {
 };
 
 function isUser(data: User | ApiErrorResponse): data is User {
-  return 'name' in data && 'email' in data;
+  return 'name' in data && 'email' in data && 'from_pref' in data;
 }
 
 function isApiErrorResponse(data: User | ApiErrorResponse): data is ApiErrorResponse {
@@ -29,6 +36,10 @@ export default function UserEdit() {
   const isEditing = id !== undefined;
   const [name, setName] = useState<string>('');
   const [email, setEmail] = useState<string>('');
+  const [fromPref, setFromPref] = useState<string>('');
+  const [prefectures, setPrefectures] = useState<Prefecture[]>([]);
+  const [prefecturesLoading, setPrefecturesLoading] = useState<boolean>(true);
+  const [prefecturesError, setPrefecturesError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(isEditing);
   const [deleting, setDeleting] = useState<boolean>(false);
   const [loadError, setLoadError] = useState<boolean>(false);
@@ -36,6 +47,29 @@ export default function UserEdit() {
   const [fieldErrors, setFieldErrors] = useState<ValidationErrors>({});
 
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const loadPrefectures = async () => {
+      try {
+        const response = await fetch('/api/prefectures', {
+          headers: { Accept: 'application/json' },
+        });
+        if (!response.ok) {
+          throw new Error('都道府県一覧を取得できませんでした。');
+        }
+
+        const prefectureData: Prefecture[] = await response.json();
+        setPrefectures(prefectureData);
+      } catch (err) {
+        console.error('都道府県一覧取得エラー:', err);
+        setPrefecturesError('都道府県一覧の取得に失敗しました。時間をおいて再度お試しください。');
+      } finally {
+        setPrefecturesLoading(false);
+      }
+    };
+
+    void loadPrefectures();
+  }, []);
 
   useEffect(() => {
     if (!id) {
@@ -56,27 +90,28 @@ export default function UserEdit() {
         const response = await fetch(`/api/users/${id}`, {
           headers: { Accept: 'application/json' },
         });
-        const data: User | ApiErrorResponse = await response.json();
+        const userData: User | ApiErrorResponse = await response.json();
 
         await minimumLoadingTime; // n秒待つ → ローディング中を表示する為のダミー待ち
 
         if (!response.ok) {
           setError(
-            (isApiErrorResponse(data) && data.message)
+            (isApiErrorResponse(userData) && userData.message)
               || 'ユーザー情報を取得できませんでした。',
           );
           setLoadError(true);
           return;
         }
 
-        if (!isUser(data)) {
+        if (!isUser(userData)) {
           setError('ユーザー情報を取得できませんでした。');
           setLoadError(true);
           return;
         }
 
-        setName(data.name);
-        setEmail(data.email);
+        setName(userData.name);
+        setEmail(userData.email);
+        setFromPref(userData.from_pref === null ? '' : String(userData.from_pref));
         setError(null);
         setLoadError(false);
       } catch (err) {
@@ -124,7 +159,11 @@ export default function UserEdit() {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
         },
-        body: JSON.stringify({ name, email }),
+        body: JSON.stringify({
+          name,
+          email,
+          from_pref: fromPref === '' ? null : Number(fromPref),
+        }),
       });
 
       const data: ApiErrorResponse = await response.json();
@@ -258,10 +297,49 @@ export default function UserEdit() {
             )}
           </div>
 
+          <div>
+            <label htmlFor="from_pref" className="block text-sm font-semibold text-emerald-900 mb-1.5">
+              出身都道府県:
+            </label>
+            <select
+              id="from_pref"
+              value={fromPref}  // 選択中の都道府県ID
+              onChange={(e) => setFromPref(e.target.value)}
+              disabled={prefecturesLoading || prefecturesError !== null}
+              style={{ colorScheme: 'light' }}
+              className="w-full p-2.5 bg-white border border-emerald-200 rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-emerald-300 focus:border-emerald-400 transition-all disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              <option value="" className="bg-white text-gray-800 hover:bg-emerald-100 hover:text-emerald-900">
+                選択してください
+              </option>
+              {prefectures.map((prefecture) => (
+                <option
+                  key={prefecture.id}
+                  value={prefecture.id}
+                  className="bg-white text-gray-800 hover:bg-emerald-100 hover:text-emerald-900"
+                  style={{ backgroundColor: '#fff', color: '#1f2937' }}
+                >
+                  {prefecture.name}
+                </option>
+              ))}
+            </select>
+            {prefecturesError && (
+              <span className="text-rose-600 text-xs mt-1.5 block">
+                {prefecturesError}
+              </span>
+            )}
+            {fieldErrors.from_pref && (
+              <span className="text-rose-600 text-xs mt-1.5 block">
+                {fieldErrors.from_pref[0]}
+              </span>
+            )}
+          </div>
+
           <div className="pt-2 flex items-center justify-center gap-3">
             {/* 更新・登録ボタン */}
             <button
               type="submit"
+              disabled={prefecturesLoading || prefecturesError !== null}
               className="bg-emerald-500 hover:bg-emerald-600 text-white font-medium px-6 py-2.5 rounded-lg shadow-sm transition-colors duration-150"
             >
               {isEditing ? '更新する' : '登録する'}
