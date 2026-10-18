@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAdminAuth } from '../auth/AdminAuthContext';
 
 // データの型の定義
 type User = {
@@ -9,6 +10,7 @@ type User = {
 };
 
 export default function UserList() {
+  const { admin, apiFetch } = useAdminAuth();
   const navigate = useNavigate();
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
@@ -26,7 +28,7 @@ export default function UserList() {
       localStorage.removeItem('flashMessage'); // 一度表示したら削除
     }
 
-    fetch('/api/user/list')
+    apiFetch('/api/user/list')
       .then((res) => {
         if (!res.ok) {
           throw new Error('会員一覧を取得できませんでした。時間をおいて再度お試しください。');
@@ -46,7 +48,7 @@ export default function UserList() {
         );
         setLoading(false);
       });
-  }, []);
+  }, [apiFetch]);
 
   if (loading) {
     return (
@@ -94,14 +96,16 @@ export default function UserList() {
         )}
 
         {/* 上部の会員追加ボタン */}
-        <div className="mb-6">
-          <button
-            className="bg-emerald-500 hover:bg-emerald-600 text-white font-medium px-5 py-2.5 rounded-lg shadow-sm transition-colors duration-150"
-            onClick={handleAddUser}
-          >
-            ＋ 会員を追加する
-          </button>
-        </div>
+        {admin && admin.admin_level >= 99 && (
+          <div className="mb-6">
+            <button
+              className="bg-emerald-500 hover:bg-emerald-600 text-white font-medium px-5 py-2.5 rounded-lg shadow-sm transition-colors duration-150"
+              onClick={handleAddUser}
+            >
+              ＋ 会員を追加する
+            </button>
+          </div>
+        )}
 
         {/* テーブル（パステルグリーンのヘッダーと柔らかい枠線） */}
         <div className="overflow-x-auto rounded-lg border border-emerald-100 shadow-sm mb-6">
@@ -111,7 +115,7 @@ export default function UserList() {
                 <th className="p-3.5 border-r border-emerald-100 font-semibold w-20 text-center">ID</th>
                 <th className="p-3.5 border-r border-emerald-100 font-semibold">名前</th>
                 <th className="p-3.5 font-semibold">メールアドレス</th>
-                <th className="p-3.5 font-semibold w-28">操作</th>
+                {admin && admin.admin_level >= 99 && <th className="p-3.5 font-semibold w-28">操作</th>}
               </tr>
             </thead>
             <tbody className="divide-y divide-emerald-100">
@@ -120,14 +124,16 @@ export default function UserList() {
                   <td className="p-3.5 border-r border-emerald-100 text-center text-gray-600">{user.id}</td>
                   <td className="p-3.5 border-r border-emerald-100 font-medium text-gray-800">{user.name}</td>
                   <td className="p-3.5 text-gray-600">{user.email}</td>
-                  <td className="p-3.5">
-                    <button
-                      className="text-emerald-700 hover:text-emerald-900 font-medium hover:underline"
-                      onClick={() => navigate(`/users/${user.id}/edit`)}
-                    >
-                      編集
-                    </button>
-                  </td>
+                  {admin && admin.admin_level >= 99 && (
+                    <td className="p-3.5">
+                      <button
+                        className="text-emerald-700 hover:text-emerald-900 font-medium hover:underline"
+                        onClick={() => navigate(`/users/${user.id}/edit`)}
+                      >
+                        編集
+                      </button>
+                    </td>
+                  )}
                 </tr>
               ))}
             </tbody>
@@ -135,14 +141,16 @@ export default function UserList() {
         </div>
 
         {/* 下部の会員追加ボタン */}
-        <div>
-          <button
-            className="bg-emerald-500 hover:bg-emerald-600 text-white font-medium px-5 py-2.5 rounded-lg shadow-sm transition-colors duration-150"
-            onClick={handleAddUser}
-          >
-            ＋ 会員を追加する
-          </button>
-        </div>
+        {admin && admin.admin_level >= 99 && (
+          <div>
+            <button
+              className="bg-emerald-500 hover:bg-emerald-600 text-white font-medium px-5 py-2.5 rounded-lg shadow-sm transition-colors duration-150"
+              onClick={handleAddUser}
+            >
+              ＋ 会員を追加する
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

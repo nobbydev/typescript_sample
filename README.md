@@ -19,7 +19,7 @@ Docker Compose で Nginx、PHP、MySQL を起動します。
 ```text
 typescript_sample/
 ├── docker/                 # Docker関連の設定
-│   ├── mysql/              # MySQL初期化SQL
+│   ├── mysql/              # MySQL関連設定
 │   ├── nginx/              # Nginx設定
 │   └── php/                # PHPコンテナのDockerfile
 ├── frontend/               # React + TypeScriptのフロントエンド
@@ -77,8 +77,12 @@ typescript_sample/
    ```bash
    docker compose exec php composer install
    docker compose exec php php artisan key:generate
+   docker compose exec php php artisan migrate:fresh --seed ⇐※注意！
    docker compose exec php chmod -R 777 storage bootstrap/cache
    ```
+
+   ※注意
+   `migrate:fresh --seed` はデータベース内の全テーブルを削除してから作成し直し、サンプルデータを登録します。既存のデータを残したい環境では実行しないでください。
 
 5. フロントエンドの依存関係をインストールし、Laravel の公開ディレクトリへビルドします。
 
@@ -90,7 +94,21 @@ typescript_sample/
 
    ビルド後、ブラウザーで <http://localhost:8000> を開きます。
 
-MySQL の初期化SQLは、データボリュームが新規作成されたときに実行され、サンプル会員データを登録します。既存のデータボリュームがある場合、このSQLは再実行されません。
+テーブル定義は Laravel のマイグレーション、初期サンプルデータは Seeder で管理します。スキーマ変更は `docker compose exec php php artisan migrate` で適用できます。
+
+## 管理者ログイン
+
+会員一覧と編集画面は、管理者ログイン後に利用できます。管理レベル1以上は一覧を閲覧でき、レベル99以上は会員の新規作成・編集・削除も行えます。
+（※管理者APIの認証にはLaravel Sanctumを使用しています）
+
+Seederで作成されるサンプルアカウント:
+
+| 権限 | メールアドレス | パスワード |
+| --- | --- | --- |
+| 最高（レベル99） | `admin@example.test` | `passwd` |
+| 閲覧のみ（レベル1） | `viewer@example.test` | `passwd` |
+
+ログインページは `/admin/login` です。
 
 ## フロントエンド開発
 
@@ -119,12 +137,25 @@ docker compose logs -f
 docker compose down
 ```
 
+## トラブルシューティング
+
+### 502 Bad Gateway が表示される
+
+PHPコンテナを再作成した後にNginxが古いPHPコンテナのIPアドレスを参照している場合があります。プロジェクトルートでNginxを再起動してください。
+
+```bash
+docker compose restart nginx
+```
+
 ## API
 
 | Method | Path | 用途 |
 | --- | --- | --- |
-| `GET` | `/api/user/list` | 会員一覧を取得 |
-| `POST` | `/api/users` | 会員を新規登録 |
-| `GET` | `/api/users/{id}` | 会員情報を取得 |
-| `PUT` | `/api/users/{id}` | 会員情報を更新 |
-| `DELETE` | `/api/users/{id}` | 会員情報を削除 |
+| `POST` | `/api/admin/login` | 管理者ログイン |
+| `GET` | `/api/admin/me` | ログイン中の管理者情報を取得 |
+| `POST` | `/api/admin/logout` | 管理者ログアウト |
+| `GET` | `/api/user/list` | レベル1以上の会員一覧を取得 |
+| `POST` | `/api/users` | レベル99以上で会員を新規登録 |
+| `GET` | `/api/users/{id}` | レベル99以上で会員情報を取得 |
+| `PUT` | `/api/users/{id}` | レベル99以上で会員情報を更新 |
+| `DELETE` | `/api/users/{id}` | レベル99以上で会員情報を削除 |

@@ -1,5 +1,6 @@
 import { useEffect, useState, type SubmitEvent } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { useAdminAuth } from '../auth/AdminAuthContext';
 
 type ValidationErrors = {
   name?: string[];
@@ -32,6 +33,7 @@ function isApiErrorResponse(data: User | ApiErrorResponse): data is ApiErrorResp
 }
 
 export default function UserEdit() {
+  const { apiFetch } = useAdminAuth();
   const { id } = useParams<{ id: string }>();
   const isEditing = id !== undefined;
   const [name, setName] = useState<string>('');
@@ -51,7 +53,7 @@ export default function UserEdit() {
   useEffect(() => {
     const loadPrefectures = async () => {
       try {
-        const response = await fetch('/api/prefectures', {
+        const response = await apiFetch('/api/prefectures', {
           headers: { Accept: 'application/json' },
         });
         if (!response.ok) {
@@ -69,7 +71,7 @@ export default function UserEdit() {
     };
 
     void loadPrefectures();
-  }, []);
+  }, [apiFetch]);
 
   useEffect(() => {
     if (!id) {
@@ -87,7 +89,7 @@ export default function UserEdit() {
       });
 
       try {
-        const response = await fetch(`/api/users/${id}`, {
+        const response = await apiFetch(`/api/users/${id}`, {
           headers: { Accept: 'application/json' },
         });
         const userData: User | ApiErrorResponse = await response.json();
@@ -124,7 +126,7 @@ export default function UserEdit() {
     };
 
     void loadUser();
-  }, [id]);
+  }, [apiFetch, id]);
 
   const validateFrontend = (): boolean => {
     if (!name.trim()) {
@@ -153,7 +155,7 @@ export default function UserEdit() {
     }
 
     try {
-      const response = await fetch(isEditing ? `/api/users/${id}` : '/api/users', {
+      const response = await apiFetch(isEditing ? `/api/users/${id}` : '/api/users', {
         method: isEditing ? 'PUT' : 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -198,7 +200,7 @@ export default function UserEdit() {
     setError(null);
 
     try {
-      const response = await fetch(`/api/users/${id}`, {
+      const response = await apiFetch(`/api/users/${id}`, {
         method: 'DELETE',
         headers: { Accept: 'application/json' },
       });
