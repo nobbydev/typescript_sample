@@ -133,9 +133,17 @@ docker compose ps
 # ログを表示
 docker compose logs -f
 
+# Nginxアクセスログをファイルで表示（ホスト上）
+tail -f docker/nginx/logs/access.log
+
+# Nginxエラーログをファイルで表示（ホスト上）
+tail -f docker/nginx/logs/error.log
+
 # コンテナを停止（データボリュームは保持）
 docker compose down
 ```
+
+Nginxのログはプロジェクト内の `docker/nginx/logs/` に保存されます。OCIサーバー上でプロジェクトが `/home/ubuntu/<プロジェクト名>` にある場合、ログファイルは `/home/ubuntu/<プロジェクト名>/docker/nginx/logs/` 以下に作成されます。Compose設定を変更した後は `docker compose up -d` でNginxコンテナを再作成してください。
 
 ## トラブルシューティング
 

@@ -8,6 +8,7 @@ services:
       - ./web:/var/www/web
       - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
       - ./docker/nginx/.htpasswd:/etc/nginx/conf.d/.htpasswd
+      - ./docker/nginx/logs:/var/log/nginx
     depends_on:
       - php
       - db
