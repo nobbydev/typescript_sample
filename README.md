@@ -10,7 +10,7 @@ Docker Compose で Nginx、PHP、MySQL を起動します。
 ## 主な技術
 
 - Frontend: React, TypeScript, Vite, React Router, Tailwind CSS
-- Backend: PHP 8.2, Laravel 10
+- Backend: PHP 8.4, Laravel 12
 - Database: MySQL 8.0
 - Web server: Nginx
 
