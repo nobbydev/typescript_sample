@@ -45,6 +45,9 @@ export default function AdminLogin() {
           <p>管理者（レベル99・編集可）：admin@example.test / passwd</p>
           <p>閲覧のみ（レベル1）：viewer@example.test / passwd</p>
         </div>
+        <div className="bg-amber-50 border border-amber-200 text-amber-900 px-4 py-3 rounded-lg mb-6 text-sm">
+          このサイトはサンプルとして公開されており、誰でも閲覧できます。実在するメールアドレスやパスワードなど、個人情報・機密情報の入力はご遠慮ください。
+        </div>
         {/* 認証APIのエラーをフォームの近くに表示する。 */}
         {error && (
           <div className="bg-rose-50 border border-rose-200 text-rose-700 px-4 py-3 rounded-lg mb-6 shadow-sm text-sm">
